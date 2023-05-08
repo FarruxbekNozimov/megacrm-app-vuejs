@@ -15,13 +15,13 @@ export const navLinks = [
     id: 3,
     title: 'Mahsulotlar',
     link: '/product',
-    icon: 'bx bxs-cheese'
+    icon: 'bx bx-chair'
   },
   {
     id: 4,
     title: 'Buyurtmalar',
     link: '/order',
-    icon: 'bx bxs-bowl-hot'
+    icon: 'bx bxs-package'
   },
   {
     id: 8,
