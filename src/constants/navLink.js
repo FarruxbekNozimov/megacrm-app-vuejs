@@ -18,6 +18,12 @@ export const navLinks = [
     icon: 'bx bx-chair'
   },
   {
+    id: 5,
+    title: 'Kontaktlar',
+    link: '/contact',
+    icon: 'bx bxs-contact'
+  },
+  {
     id: 4,
     title: 'Buyurtmalar',
     link: '/order',
@@ -28,12 +34,6 @@ export const navLinks = [
     title: 'Yangi buyurtmaler',
     link: '/order',
     icon: 'bx bxs-cart-add'
-  },
-  {
-    id: 5,
-    title: 'Kontaktlar',
-    link: '/contact',
-    icon: 'bx bxs-contact'
   },
   {
     id: 6,
