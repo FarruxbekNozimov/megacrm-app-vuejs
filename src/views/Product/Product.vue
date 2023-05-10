@@ -1,9 +1,41 @@
 <script setup>
-import { ref } from 'vue'
+import { toast } from 'vue3-toastify'
+import { ref, reactive } from 'vue'
+import { productStore } from '../../stores/product/productStore.js'
 
 const modal = ref(false)
-
+const search = ref('')
 const toggleModal = () => (modal.value = !modal.value)
+
+const productInfo = reactive({
+  proname: '',
+  pronarxi: '',
+  proturi: '',
+  prorasm: ''
+})
+const store = productStore()
+
+const searching = () => {
+  store.SEARCH(search.value)
+}
+
+const addProduct = () => {
+  const product = {
+    proname: productInfo.proname,
+    pronarxi: productInfo.pronarxi,
+    proturi: productInfo.proturi,
+    prosana: Date.now(),
+    prorasm: productInfo.prorasm
+  }
+  store.ADD(product)
+
+  toggleModal()
+  toast.success('Successfully added employee', {
+    autoClose: 1000,
+    theme: 'light'
+  })
+  for (let i in productInfo) productInfo[i] = ''
+}
 </script>
 
 <template>
@@ -51,7 +83,7 @@ const toggleModal = () => (modal.value = !modal.value)
             </button>
           </div>
           <!-- Modal body -->
-          <form action="#">
+          <form @submit.prevent="addProduct">
             <div class="grid gap-4 mb-4 sm:grid-cols-2">
               <div>
                 <label
@@ -66,6 +98,7 @@ const toggleModal = () => (modal.value = !modal.value)
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Mahsulot nomini kiriting..."
                   required=""
+                  v-model="productInfo.proname"
                 />
               </div>
               <div>
@@ -92,8 +125,9 @@ const toggleModal = () => (modal.value = !modal.value)
                   name="price"
                   id="price"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Karta raqam kiriting..."
+                  placeholder="Mahsulot raqam kiriting..."
                   required=""
+                  v-model="productInfo.pronarxi"
                 />
               </div>
               <div>
@@ -103,6 +137,7 @@ const toggleModal = () => (modal.value = !modal.value)
                   >Mahsulot turi</label
                 >
                 <select
+                  v-model="productInfo.proturi"
                   id="category"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 >
@@ -135,7 +170,7 @@ const toggleModal = () => (modal.value = !modal.value)
       </div>
     </div>
 
-    <!-- ================= EMPLOYEE TABLE ================= -->
+    <!-- ================= PRODUCT TABLE ================= -->
 
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 md:p-0">
       <div class="w-full max-w-screen px-0 lg:p-0">
@@ -159,6 +194,8 @@ const toggleModal = () => (modal.value = !modal.value)
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Qidiruv"
                     required=""
+                    v-model="search"
+                    @input="searching"
                   />
                 </div>
               </form>
@@ -264,16 +301,16 @@ const toggleModal = () => (modal.value = !modal.value)
                 </tr>
               </thead>
               <tbody>
-                <tr class="border-b dark:border-gray-700">
+                <tr v-for="el in store.LIST" class="border-b dark:border-gray-700">
                   <th
                     scope="row"
                     class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    Tuxedo
+                    {{ el.proname }}
                   </th>
-                  <td class="px-4 py-3">$3230</td>
-                  <td class="px-4 py-3">Sofa set</td>
-                  <td class="px-4 py-3">20023.12.34</td>
+                  <td class="px-4 py-3">{{ el.pronarxi }}</td>
+                  <td class="px-4 py-3">{{ el.proturi }}</td>
+                  <td class="px-4 py-3">{{ el.prosana }}</td>
                   <td class="px-4 py-3">
                     <img
                       src="https://cdn.apartmenttherapy.info/image/upload/v1620142498/gen-workflow/product-database/holden-grey-tufted-sofa-cb2.jpg"

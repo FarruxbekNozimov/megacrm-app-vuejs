@@ -19,7 +19,7 @@ const navlink = ref(navLinks)
               :to="link.link"
               class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:text-gray-100 hover:bg-gray-900 dark:hover:bg-gray-700"
             >
-              <i :class="link.icon" class="text-xl"></i>
+              <i :title="link.title" :class="link.icon" class="text-xl"></i>
               <span class="ml-3">{{ link.title }}</span>
             </router-link>
           </li>
@@ -33,5 +33,6 @@ const navlink = ref(navLinks)
 .router-link-active {
   background: blue;
   color: #fff;
+  font-weight: bold;
 }
 </style>

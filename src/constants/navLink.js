@@ -18,6 +18,12 @@ export const navLinks = [
     icon: 'bx bx-chair'
   },
   {
+    id: 3,
+    title: 'Mahsulot turi',
+    link: '/product-type',
+    icon: 'bx bx-folder-plus'
+  },
+  {
     id: 5,
     title: 'Kontaktlar',
     link: '/contact',
@@ -31,7 +37,7 @@ export const navLinks = [
   },
   {
     id: 8,
-    title: 'Yangi buyurtmaler',
+    title: 'Yangi buyurtmalar',
     link: '/order',
     icon: 'bx bxs-cart-add'
   },

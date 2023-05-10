@@ -1,9 +1,45 @@
 <script setup>
-import { ref } from 'vue'
+import { toast } from 'vue3-toastify'
+import { ref, reactive, onMounted } from 'vue'
+import { employeeStore } from '../../stores/employee/employeeStore.js'
 
 const modal = ref(false)
-
+const search = ref('')
 const toggleModal = () => (modal.value = !modal.value)
+
+const employeeInfo = reactive({
+  fullname: '',
+  tel: '',
+  role: '',
+  card: '',
+  login: '',
+  password: '',
+  status: true
+})
+const store = employeeStore()
+
+const searching = () => {
+  store.SEARCH(search.value)
+}
+
+const addEmployee = () => {
+  const employee = {
+    fullname: employeeInfo.fullname,
+    tel: employeeInfo.tel,
+    role: employeeInfo.role,
+    card: employeeInfo.card,
+    login: employeeInfo.login,
+    password: employeeInfo.password,
+    status: employeeInfo.status
+  }
+  store.ADD(employee)
+  toggleModal()
+  toast.success('Successfully added employee', {
+    autoClose: 1000,
+    theme: 'light'
+  })
+  for (let i in employeeInfo) employeeInfo[i] = ''
+}
 </script>
 
 <template>
@@ -51,7 +87,7 @@ const toggleModal = () => (modal.value = !modal.value)
             </button>
           </div>
           <!-- Modal body -->
-          <form action="#">
+          <form @submit.prevent="addEmployee">
             <div class="grid gap-4 mb-4 sm:grid-cols-2">
               <div>
                 <label
@@ -66,6 +102,7 @@ const toggleModal = () => (modal.value = !modal.value)
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Ismingizni kiriting..."
                   required=""
+                  v-model="employeeInfo.fullname"
                 />
               </div>
               <div>
@@ -81,6 +118,7 @@ const toggleModal = () => (modal.value = !modal.value)
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Telefon raqam kiriting..."
                   required=""
+                  v-model="employeeInfo.tel"
                 />
               </div>
               <div>
@@ -96,6 +134,7 @@ const toggleModal = () => (modal.value = !modal.value)
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Karta raqam kiriting..."
                   required=""
+                  v-model="employeeInfo.card"
                 />
               </div>
               <div>
@@ -107,6 +146,7 @@ const toggleModal = () => (modal.value = !modal.value)
                 <select
                   id="category"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  v-model="employeeInfo.role"
                 >
                   <option selected="">Admin</option>
                   <option>Operator</option>
@@ -126,6 +166,7 @@ const toggleModal = () => (modal.value = !modal.value)
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Login kiriting..."
                   required=""
+                  v-model="employeeInfo.login"
                 />
               </div>
               <div>
@@ -141,6 +182,7 @@ const toggleModal = () => (modal.value = !modal.value)
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Parol kiriting..."
                   required=""
+                  v-model="employeeInfo.password"
                 />
               </div>
             </div>
@@ -186,11 +228,13 @@ const toggleModal = () => (modal.value = !modal.value)
                     <i class="bx bxs-search text-white text-xl"></i>
                   </div>
                   <input
+                    @input="searching"
                     type="text"
                     id="simple-search"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Qidiruv"
                     required=""
+                    v-model="search"
                   />
                 </div>
               </form>
@@ -296,17 +340,17 @@ const toggleModal = () => (modal.value = !modal.value)
                 </tr>
               </thead>
               <tbody>
-                <tr class="border-b dark:border-gray-700">
+                <tr v-for="el in store.LIST" class="border-b dark:border-gray-700">
                   <th
                     scope="row"
                     class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    Bekzod Payzullayev
+                    {{ el.fullname }}
                   </th>
-                  <td class="px-4 py-3">+998129</td>
-                  <td class="px-4 py-3">ADMIN</td>
-                  <td class="px-4 py-3">860012309134091</td>
-                  <td class="px-4 py-3">Active</td>
+                  <td class="px-4 py-3">{{ el.tel }}</td>
+                  <td class="px-4 py-3">{{ el.role }}</td>
+                  <td class="px-4 py-3">{{ el.card }}</td>
+                  <td class="px-4 py-3">{{ el.status }}</td>
                   <td class="px-4 py-3 flex items-center justify-end">
                     <button
                       id="apple-imac-27-dropdown-button"
