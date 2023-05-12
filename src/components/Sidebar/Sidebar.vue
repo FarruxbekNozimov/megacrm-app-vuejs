@@ -1,8 +1,15 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { navLinks } from '../../constants/navLink'
+import { userStore } from '../../stores/user/userStore'
 
 const navlink = ref(navLinks)
+const store = userStore()
+
+onMounted(() => {
+  store.SET_USER()
+})
+console.log(store.USER)
 </script>
 
 <template>
@@ -16,6 +23,7 @@ const navlink = ref(navLinks)
         <ul class="space-y-2 font-medium">
           <li v-for="link in navLinks" :key="link.id">
             <router-link
+              v-if="link.type.includes(store.USER.role)"
               :to="link.link"
               class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:text-gray-100 hover:bg-gray-900 dark:hover:bg-gray-700"
             >
