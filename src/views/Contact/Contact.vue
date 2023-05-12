@@ -2,13 +2,18 @@
 import { toast } from 'vue3-toastify'
 import { ref, reactive } from 'vue'
 import { contactStore } from '../../stores/contact/contactStore.js'
+import moment from 'moment'
 
 const modal = ref(false)
 const search = ref('')
+const popUp = ref(false)
+const popUpId = ref(null)
 const toggleModal = () => (modal.value = !modal.value)
+const togglePopUp = () => (popUp.value = !popUp.value)
 
 const contactInfo = reactive({
   number: '',
+  sana: Date.now(),
   status: ''
 })
 const store = contactStore()
@@ -19,6 +24,7 @@ const searching = () => {
 
 const addContact = () => {
   const contact = {
+    id: Date.now(),
     number: contactInfo.number,
     sana: Date.now(),
     status: true
@@ -28,6 +34,11 @@ const addContact = () => {
   toggleModal()
   toast.success('Successfully added employee', { autoClose: 1000 })
   for (let i in contactInfo) contactInfo[i] = ''
+}
+
+const changeStatus = () => {
+  store.CHANGE_STATUS(popUpId.value)
+  togglePopUp()
 }
 </script>
 
@@ -118,6 +129,102 @@ const addContact = () => {
       </div>
     </div>
 
+    <!-- POP UP MODAL -->
+
+    <div
+      id="popup-modal"
+      tabindex="-1"
+      class="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[100vh] max-h-full flex justify-center items-center bg-[#00000080]"
+      :class="popUp ? '' : 'hidden'"
+    >
+      <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <button
+            @click="togglePopUp"
+            type="submit"
+            class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white cursor-pointer z-10"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+          <div class="p-6 text-center">
+            <svg
+              aria-hidden="true"
+              class="mx-auto mb-4 text-gray-400 w-14 h-14 dark:text-gray-200"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+              Buyruqlardan birini talang !!!
+            </h3>
+            <div class="flex justify-center gap-3">
+              <button
+                class="inline-flex items-center px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-md"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                  />
+                </svg>
+                Buyurtma olish
+              </button>
+              <button
+                @click="changeStatus"
+                data-modal-hide="popup-modal"
+                type="button"
+                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                Bekor qilish
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ================= EMPLOYEE TABLE ================= -->
 
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 md:p-0">
@@ -142,6 +249,8 @@ const addContact = () => {
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Qidiruv"
                     required=""
+                    v-model="search"
+                    @input="searching"
                   />
                 </div>
               </form>
@@ -239,6 +348,7 @@ const addContact = () => {
                   <th scope="col" class="px-4 py-3">Tel:</th>
                   <th scope="col" class="px-4 py-3">Qo'shilgan sanasi</th>
                   <th scope="col" class="px-4 py-3">Status</th>
+                  <th scope="col" class="px-4 py-3">Buyurtma olish</th>
                   <th scope="col" class="px-4 py-3">
                     <span class="sr-only">Actions</span>
                   </th>
@@ -252,8 +362,25 @@ const addContact = () => {
                   >
                     {{ el.number }}
                   </th>
-                  <td class="px-4 py-3">2022.11.02</td>
+                  <td class="px-4 py-3">{{ moment(el.sana).format('YYYY.MM.DD HH:mm') }}</td>
                   <td class="px-4 py-3">
+                    <label class="relative inline-flex items-center mr-5 cursor-pointer">
+                      <input
+                        disabled
+                        :checked="el.status"
+                        type="checkbox"
+                        value=""
+                        class="sr-only peer"
+                      />
+                      <div
+                        class="w-11 h-6 bg-red-200 rounded-full peer dark:bg-red-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"
+                      ></div>
+                      <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{
+                        el.status ? 'DONE' : 'CANCEL'
+                      }}</span>
+                    </label>
+
+                    <!-- 
                     <span
                       v-if="el.status"
                       class="bg-green-500 p-2 text-white rounded-lg text-center"
@@ -261,7 +388,22 @@ const addContact = () => {
                     >
                     <span v-else class="bg-red-500 p-2 text-white rounded-lg text-center"
                       >CANCEL</span
+                    > -->
+                  </td>
+                  <td class="px-4 py-3">
+                    <button
+                      @click="
+                        () => {
+                          togglePopUp()
+                          popUpId = el.id
+                        }
+                      "
+                      type="button"
+                      class="px-2 py-1 bg-blue-600 rounded-md text-white outline-none focus:ring-4 shadow-lg transform active:scale-y-75 transition-transform flex justify-between items-center gap-2"
                     >
+                      <span>Buyurtma olish</span>
+                      <i class="bx bx-right-arrow-circle text-lg"></i>
+                    </button>
                   </td>
                   <td class="px-4 py-3 flex items-center justify-end">
                     <button

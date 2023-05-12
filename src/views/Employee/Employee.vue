@@ -2,6 +2,7 @@
 import { toast } from 'vue3-toastify'
 import { ref, reactive, onMounted } from 'vue'
 import { employeeStore } from '../../stores/employee/employeeStore.js'
+import { useEmployee } from '../../service/employee'
 
 const modal = ref(false)
 const search = ref('')
@@ -9,11 +10,11 @@ const toggleModal = () => (modal.value = !modal.value)
 
 const employeeInfo = reactive({
   fullname: '',
-  tel: '',
-  role: '',
-  card: '',
+  phone_number: '',
   login: '',
   password: '',
+  card: '',
+  role: '',
   status: true
 })
 const store = employeeStore()
@@ -22,24 +23,56 @@ const searching = () => {
   store.SEARCH(search.value)
 }
 
+const listUpdate = () => {
+  useEmployee
+    .GET()
+    .then((res) => {
+      console.log(res)
+      store.GETLIST(res?.data)
+    })
+    .catch((err) => {
+      console.log(err)
+      toast.error('Error', {
+        autoClose: 1000,
+        theme: 'light'
+      })
+    })
+}
+
 const addEmployee = () => {
   const employee = {
     fullname: employeeInfo.fullname,
-    tel: employeeInfo.tel,
-    role: employeeInfo.role,
+    phone_number: employeeInfo.phone_number,
     card: employeeInfo.card,
+    role: employeeInfo.role,
     login: employeeInfo.login,
     password: employeeInfo.password,
     status: employeeInfo.status
   }
-  store.ADD(employee)
-  toggleModal()
-  toast.success('Successfully added employee', {
-    autoClose: 1000,
-    theme: 'light'
-  })
-  for (let i in employeeInfo) employeeInfo[i] = ''
+  console.log(employee)
+  useEmployee
+    .CREATE(employee)
+    .then(() => {
+      listUpdate()
+      toggleModal()
+      toast.success('Successfully added employee', {
+        autoClose: 1000,
+        theme: 'light'
+      })
+      for (let i in employeeInfo) employeeInfo[i] = ''
+    })
+    .catch((err) => {
+      console.log(err)
+      toast.error(err?.response?.data?.msg, {
+        autoClose: 1000,
+        theme: 'light'
+      })
+    })
 }
+
+onMounted(() => {
+  listUpdate()
+})
 </script>
 
 <template>
@@ -112,13 +145,13 @@ const addEmployee = () => {
                   >Tel:</label
                 >
                 <input
-                  type="tel"
-                  name="brand"
+                  type="phone_number"
                   id="brand"
+                  name="brand"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Telefon raqam kiriting..."
                   required=""
-                  v-model="employeeInfo.tel"
+                  v-model="employeeInfo.phone_number"
                 />
               </div>
               <div>
@@ -145,12 +178,12 @@ const addEmployee = () => {
                 >
                 <select
                   id="category"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 uppercase"
                   v-model="employeeInfo.role"
                 >
-                  <option selected="">Admin</option>
-                  <option>Operator</option>
-                  <option>Eltuvchi</option>
+                  <option>ADMIN</option>
+                  <option>OPERATOR</option>
+                  <option>DELIVERYMAN</option>
                 </select>
               </div>
               <div>
@@ -347,10 +380,10 @@ const addEmployee = () => {
                   >
                     {{ el.fullname }}
                   </th>
-                  <td class="px-4 py-3">{{ el.tel }}</td>
-                  <td class="px-4 py-3">{{ el.role }}</td>
+                  <td class="px-4 py-3">{{ el.phone_number }}</td>
                   <td class="px-4 py-3">{{ el.card }}</td>
-                  <td class="px-4 py-3">{{ el.status }}</td>
+                  <td class="px-4 py-3">{{ el.role }}</td>
+                  <td class="px-4 py-3">{{ el.is_active }}</td>
                   <td class="px-4 py-3 flex items-center justify-end">
                     <button
                       id="apple-imac-27-dropdown-button"

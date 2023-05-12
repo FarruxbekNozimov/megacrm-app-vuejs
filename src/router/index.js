@@ -19,7 +19,7 @@ const router = createRouter({
           component: () => import('../views/Product/Product.vue')
         },
         {
-          path: '/types',
+          path: '/product-type',
           name: 'ProductType',
           component: () => import('../views/Product/ProductType.vue')
         },
@@ -51,6 +51,14 @@ const router = createRouter({
       component: () => import('../views/Error/Error.vue')
     }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.name != 'Login' && !localStorage.getItem('token')) {
+    next('/login')
+  } else {
+    next()
+  }
 })
 
 export default router

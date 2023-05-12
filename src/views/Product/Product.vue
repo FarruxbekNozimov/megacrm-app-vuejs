@@ -2,6 +2,7 @@
 import { toast } from 'vue3-toastify'
 import { ref, reactive } from 'vue'
 import { productStore } from '../../stores/product/productStore.js'
+import { productTypeStore } from '../../stores/product/producType.js'
 
 const modal = ref(false)
 const search = ref('')
@@ -14,6 +15,7 @@ const productInfo = reactive({
   prorasm: ''
 })
 const store = productStore()
+const state = productTypeStore()
 
 const searching = () => {
   store.SEARCH(search.value)
@@ -141,9 +143,8 @@ const addProduct = () => {
                   id="category"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 >
-                  <option selected="">Admin</option>
-                  <option>Operator</option>
-                  <option>Eltuvchi</option>
+                  <option selected disabled>Maxsulot turini tanlang</option>
+                  <option v-for="el in state.LIST" :key="el.id" selected="">{{ el.title }}</option>
                 </select>
               </div>
             </div>

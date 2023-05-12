@@ -4,7 +4,7 @@ import Header from '../components/Header/Header.vue'
 </script>
 
 <template>
-  <main class="dark">
+  <main>
     <section id="main" class="w-full h-[100vh] dark:bg-gray-950">
       <Header />
       <Sidebar />

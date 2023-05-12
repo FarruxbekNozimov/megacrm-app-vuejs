@@ -1,7 +1,7 @@
 <script setup>
 import { toast } from 'vue3-toastify'
 import { ref } from 'vue'
-import { productTypeStore } from '../../stores/product/productTypeStore.js'
+import { productTypeStore } from '../../stores/product/producType'
 
 const modal = ref(false)
 const toggleModal = () => (modal.value = !modal.value)
@@ -16,13 +16,15 @@ const addType = () => {
   }
   state.ADD(type)
   toast.success('Successfully added')
+  toggleModal()
+  title.value = ''
 }
 </script>
 
 <template>
   <div class="p-3">
     <h2 class="uppercase dark:text-white text-gray-900 p-2 text-xl text-center font-bold">
-      Products
+      Contacts
     </h2>
 
     <!-- Main modal -->
@@ -40,7 +42,7 @@ const addType = () => {
           <div
             class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600"
           >
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Product</h3>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Contact</h3>
             <button
               @click="toggleModal"
               type="button"
@@ -64,13 +66,13 @@ const addType = () => {
             </button>
           </div>
           <!-- Modal body -->
-          <form @submit.prevent="addProduct">
-            <div class="grid gap-4 mb-4 sm:grid-cols-2">
+          <form @submit.prevent="addType">
+            <div class="grid gap-4 mb-4 sm:grid-cols-1">
               <div>
                 <label
                   for="name"
                   class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >Mahsulot nomi</label
+                  >Mahsulot turi</label
                 >
                 <input
                   type="text"
@@ -79,53 +81,8 @@ const addType = () => {
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Mahsulot nomini kiriting..."
                   required=""
-                  v-model="productInfo.proname"
+                  v-model="title"
                 />
-              </div>
-              <div>
-                <label
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  for="file_input"
-                  >Mahsulot rasmi</label
-                >
-                <input
-                  class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                  aria-describedby="file_input_help"
-                  id="file_input"
-                  type="file"
-                />
-              </div>
-              <div>
-                <label
-                  for="price"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >Mahsulot narxi</label
-                >
-                <input
-                  type="number"
-                  name="price"
-                  id="price"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Mahsulot raqam kiriting..."
-                  required=""
-                  v-model="productInfo.pronarxi"
-                />
-              </div>
-              <div>
-                <label
-                  for="category"
-                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >Mahsulot turi</label
-                >
-                <select
-                  v-model="productInfo.proturi"
-                  id="category"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                >
-                  <option selected="">Admin</option>
-                  <option>Operator</option>
-                  <option>Eltuvchi</option>
-                </select>
               </div>
             </div>
             <button
@@ -144,14 +101,14 @@ const addType = () => {
                   clip-rule="evenodd"
                 ></path>
               </svg>
-              Yangi Mahsulotni qo'shish
+              Yangi Mahsulot turi qo'shish
             </button>
           </form>
         </div>
       </div>
     </div>
 
-    <!-- ================= PRODUCT TABLE ================= -->
+    <!-- ================= EMPLOYEE TABLE ================= -->
 
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 md:p-0">
       <div class="w-full max-w-screen px-0 lg:p-0">
@@ -175,8 +132,6 @@ const addType = () => {
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Qidiruv"
                     required=""
-                    v-model="search"
-                    @input="searching"
                   />
                 </div>
               </form>
@@ -192,7 +147,7 @@ const addType = () => {
                 class="flex items-center justify-center dark:text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
               >
                 <i class="bx bx-plus text-xl"></i>
-                Mahsulot qo'shish
+                Mahsulot turi qo'shish
               </button>
               <div class="flex items-center space-x-3 w-full md:w-auto">
                 <button
@@ -271,34 +226,20 @@ const addType = () => {
                 class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
               >
                 <tr>
-                  <th scope="col" class="px-4 py-3">Mahsulot nomi</th>
-                  <th scope="col" class="px-4 py-3">Mahsulot narxi</th>
                   <th scope="col" class="px-4 py-3">Mahsulot turi</th>
-                  <th scope="col" class="px-4 py-3">Qo'shilgan sanasi</th>
-                  <th scope="col" class="px-4 py-3">Rasmi</th>
                   <th scope="col" class="px-4 py-3">
                     <span class="sr-only">Actions</span>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="el in store.LIST" class="border-b dark:border-gray-700">
+                <tr v-for="el in state.LIST" class="border-b dark:border-gray-700">
                   <th
                     scope="row"
                     class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    {{ el.proname }}
+                    {{ el.title }}
                   </th>
-                  <td class="px-4 py-3">{{ el.pronarxi }}</td>
-                  <td class="px-4 py-3">{{ el.proturi }}</td>
-                  <td class="px-4 py-3">{{ el.prosana }}</td>
-                  <td class="px-4 py-3">
-                    <img
-                      src="https://cdn.apartmenttherapy.info/image/upload/v1620142498/gen-workflow/product-database/holden-grey-tufted-sofa-cb2.jpg"
-                      class="rounded-xl h-[50px] w-[50px] border border-dashed"
-                      alt=""
-                    />
-                  </td>
                   <td class="px-4 py-3 flex items-center justify-end">
                     <button
                       id="apple-imac-27-dropdown-button"
@@ -450,5 +391,4 @@ const addType = () => {
     </section>
   </div>
 </template>
-
 <style></style>

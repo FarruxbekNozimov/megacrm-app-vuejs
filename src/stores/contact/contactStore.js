@@ -29,7 +29,17 @@ export const contactStore = defineStore('contact', () => {
     state.list = state.realList
   }
 
+  const CHANGE_STATUS = (id) => {
+    for (let i in state.realList) {
+      if (state.realList[i].id == id) {
+        state.realList[i].status = false
+        console.log(state.realList)
+        return id
+      }
+    }
+  }
+
   const LIST = computed(() => state.list)
 
-  return { ADD, LIST, SEARCH, GETLIST }
+  return { ADD, LIST, SEARCH, GETLIST, CHANGE_STATUS }
 })
