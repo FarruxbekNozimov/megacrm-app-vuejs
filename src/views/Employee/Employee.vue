@@ -29,8 +29,7 @@ const listUpdate = () => {
     .then((res) => {
       console.log(res)
       store.GETLIST(res?.data)
-    })
-    .catch((err) => {
+    }).catch((err) => {
       console.log(err)
       toast.error('Error', {
         autoClose: 1000,

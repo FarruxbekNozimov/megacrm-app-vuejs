@@ -1,7 +1,8 @@
 <script setup>
 import { toast } from 'vue3-toastify'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { productTypeStore } from '../../stores/product/producType'
+import { useProductType } from '../../service/product/type'
 
 const modal = ref(false)
 const toggleModal = () => (modal.value = !modal.value)
@@ -9,22 +10,56 @@ const toggleModal = () => (modal.value = !modal.value)
 const state = productTypeStore()
 
 const title = ref('')
+
+const listUpdate = () => {
+  useProductType
+    .GET()
+    .then((res) => {
+      console.log(res)
+      store.GETLIST(res?.data)
+    })
+    .catch((err) => {
+      console.log(err)
+      toast.error('Error', {
+        autoClose: 1000,
+        theme: 'light'
+      })
+    })
+}
+
 const addType = () => {
   const type = {
-    id: Date.now(),
-    title: title.value
+    name: title.value
   }
-  state.ADD(type)
-  toast.success('Successfully added')
-  toggleModal()
-  title.value = ''
+  useProductType
+    .CREATE(type)
+    .then(() => {
+      listUpdate()
+      toggleModal()
+      toast.success("Maxsulot turi muvaffaqiyatli qo'shildi", {
+        autoClose: 1000,
+        theme: 'light'
+      })
+      title.value = ''
+    })
+    .catch((err) => {
+      console.log(err)
+      toast.error(err?.response?.data?.msg, {
+        autoClose: 1000,
+        theme: 'light'
+      })
+    })
 }
+
+onMounted(() => {
+  listUpdate()
+})
 </script>
 
 <template>
   <div class="p-3">
     <h2 class="uppercase dark:text-white text-gray-900 p-2 text-xl text-center font-bold">
-      Contacts
+      Product Types
     </h2>
 
     <!-- Main modal -->
@@ -108,7 +143,7 @@ const addType = () => {
       </div>
     </div>
 
-    <!-- ================= EMPLOYEE TABLE ================= -->
+    <!-- ================= PRODUCT TYPE TABLE ================= -->
 
     <section class="bg-gray-50 dark:bg-gray-900 p-3 sm:p-5 md:p-0">
       <div class="w-full max-w-screen px-0 lg:p-0">
@@ -233,6 +268,7 @@ const addType = () => {
                 </tr>
               </thead>
               <tbody>
+                <h1>{{ state.LIST }}</h1>
                 <tr v-for="el in state.LIST" class="border-b dark:border-gray-700">
                   <th
                     scope="row"

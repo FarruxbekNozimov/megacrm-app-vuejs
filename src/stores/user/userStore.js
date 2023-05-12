@@ -9,7 +9,6 @@ export const userStore = defineStore('user', () => {
 
   const SET_USER = async () => {
     state.user = (await useUser.GET()).data
-    console.log(state.user)
   }
 
   const USER = computed(() => state.user)
