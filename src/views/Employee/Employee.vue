@@ -7,6 +7,11 @@ import { useEmployee } from '../../service/employee'
 const modal = ref(false)
 const search = ref('')
 const toggleModal = () => (modal.value = !modal.value)
+const pagination = reactive({
+  totalPage: 0,
+  currentPage: 0,
+  totalCount: 9
+})
 
 const employeeInfo = reactive({
   fullname: '',
@@ -19,17 +24,34 @@ const employeeInfo = reactive({
 })
 const store = employeeStore()
 
-const searching = () => {
-  store.SEARCH(search.value)
-}
-
 const listUpdate = () => {
   useEmployee
     .GET()
     .then((res) => {
       console.log(res)
       store.GETLIST(res?.data)
-    }).catch((err) => {
+    })
+    .catch((err) => {
+      console.log(err)
+      toast.error('Error', {
+        autoClose: 1000,
+        theme: 'light'
+      })
+    })
+}
+
+const changeStatus = (id, status) => {
+  console.log(id, status)
+  useEmployee
+    .IS_ACTIVE(id, status)
+    .then((res) => {
+      listUpdate()
+      toast.success('Successfuly', {
+        autoClose: 1000,
+        theme: 'light'
+      })
+    })
+    .catch((err) => {
       console.log(err)
       toast.error('Error', {
         autoClose: 1000,
@@ -48,12 +70,11 @@ const addEmployee = () => {
     password: employeeInfo.password,
     status: employeeInfo.status
   }
-  console.log(employee)
   useEmployee
     .CREATE(employee)
     .then(() => {
-      listUpdate()
       toggleModal()
+      listUpdate()
       toast.success('Successfully added employee', {
         autoClose: 1000,
         theme: 'light'
@@ -356,7 +377,7 @@ onMounted(() => {
           </div>
 
           <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 ">
+            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead
                 class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
               >
@@ -382,11 +403,11 @@ onMounted(() => {
                   <td class="px-4 py-3">{{ el.phone_number }}</td>
                   <td class="px-4 py-3">{{ el.card }}</td>
                   <td class="px-4 py-3">{{ el.role }}</td>
+                  <td class="px-4 py-3"></td>
                   <td class="px-4 py-3">
-                   <td class="px-4 py-3">
                     <label class="relative inline-flex items-center mr-5 cursor-pointer">
                       <input
-                        disabled
+                        @change="() => changeStatus(el._id, !el.is_active)"
                         :checked="el.is_active"
                         type="checkbox"
                         class="sr-only peer"
@@ -398,7 +419,7 @@ onMounted(() => {
                         el.is_active ? 'ACTIVE' : 'NOT ACTIVE'
                       }}</span>
                     </label>
-                  </td></td>
+                  </td>
                   <td class="px-4 py-3 flex items-center justify-end">
                     <button
                       id="apple-imac-27-dropdown-button"
@@ -460,7 +481,12 @@ onMounted(() => {
           >
             <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
               Showing
-              <span class="font-semibold text-gray-900 dark:text-white">1-10</span>
+              <h1>{{}}</h1>
+              <span class="font-semibold text-gray-900 dark:text-white"
+                >{{ pagination.currentPage * 10 + 1 }}-{{
+                  pagination.currentPage + store.LIST?.length
+                }}</span
+              >
               of
               <span class="font-semibold text-gray-900 dark:text-white">1000</span>
             </span>
@@ -486,40 +512,11 @@ onMounted(() => {
                   </svg>
                 </a>
               </li>
-              <li>
+              <li v-for="el in pagination.totalPage" :key="el" @click="paginate(el)">
                 <a
                   href="#"
                   class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                   >1</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >2</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  aria-current="page"
-                  class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-blue-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                  >3</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >...</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >100</a
                 >
               </li>
               <li>

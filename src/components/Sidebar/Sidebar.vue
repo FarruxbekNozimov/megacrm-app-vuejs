@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { navLinks } from '../../constants/navLink'
 import { userStore } from '../../stores/user/userStore'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 const navlink = ref(navLinks)
 const store = userStore()
@@ -9,7 +11,6 @@ const store = userStore()
 onMounted(() => {
   store.SET_USER()
 })
-console.log(store.USER)
 </script>
 
 <template>

@@ -8,23 +8,10 @@ const modal = ref(false)
 const toggleModal = () => (modal.value = !modal.value)
 
 const state = productTypeStore()
-
 const title = ref('')
 
 const listUpdate = () => {
-  useProductType
-    .GET()
-    .then((res) => {
-      console.log(res)
-      store.GETLIST(res?.data)
-    })
-    .catch((err) => {
-      console.log(err)
-      toast.error('Error', {
-        autoClose: 1000,
-        theme: 'light'
-      })
-    })
+  state.GETLIST
 }
 
 const addType = () => {
@@ -262,19 +249,25 @@ onMounted(() => {
               >
                 <tr>
                   <th scope="col" class="px-4 py-3">Mahsulot turi</th>
+                  <th scope="col" class="px-4 py-3">Qo'shilgan sanasi</th>
                   <th scope="col" class="px-4 py-3">
                     <span class="sr-only">Actions</span>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <h1>{{ state.LIST }}</h1>
                 <tr v-for="el in state.LIST" class="border-b dark:border-gray-700">
                   <th
                     scope="row"
                     class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    {{ el.title }}
+                    {{ el.name }}
+                  </th>
+                  <th
+                    scope="row"
+                    class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {{ el.createdAt.slice(0, 10) }}
                   </th>
                   <td class="px-4 py-3 flex items-center justify-end">
                     <button

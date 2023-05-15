@@ -1,43 +1,79 @@
 <script setup>
 import { toast } from 'vue3-toastify'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { productStore } from '../../stores/product/productStore.js'
 import { productTypeStore } from '../../stores/product/producType.js'
+import { useProduct } from '../../service/product'
+import { Upload } from 'upload-js'
 
 const modal = ref(false)
 const search = ref('')
 const toggleModal = () => (modal.value = !modal.value)
+const fileLink = ref('')
+
+const upload = Upload({ apiKey: 'public_12a1yEX912uU1bYwPjWP6JGFm3QZ' })
+
+const onFileSelected = async (event) => {
+  const [file] = event.target.files
+  console.log(file)
+  const { fileUrl } = await upload.uploadFile(file, { onProgress })
+  fileLink.value = fileUrl
+}
+
+const onProgress = ({ progress }) => {
+  console.log(`File uploading: ${progress}% complete.`)
+}
 
 const productInfo = reactive({
-  proname: '',
-  pronarxi: '',
-  proturi: '',
-  prorasm: ''
+  name: '',
+  price: '',
+  category_id: '',
+  description: '',
+  staff_id: ''
 })
 const store = productStore()
 const state = productTypeStore()
 
-const searching = () => {
-  store.SEARCH(search.value)
+const listUpdate = () => {
+  state.GETLIST
 }
 
-const addProduct = () => {
+const updateTheVariable = (value) => {
+  productInfo.description = value
+}
+
+const addProduct = async () => {
   const product = {
-    proname: productInfo.proname,
-    pronarxi: productInfo.pronarxi,
-    proturi: productInfo.proturi,
-    prosana: Date.now(),
-    prorasm: productInfo.prorasm
+    name: productInfo.name,
+    price: productInfo.price,
+    category_id: productInfo.category_id,
+    img: fileLink.value,
+    description: productInfo.description
   }
-  store.ADD(product)
-
-  toggleModal()
-  toast.success('Successfully added employee', {
-    autoClose: 1000,
-    theme: 'light'
-  })
-  for (let i in productInfo) productInfo[i] = ''
+  console.log(product)
+  useProduct
+    .CREATE(product)
+    .then(() => {
+      listUpdate()
+      toggleModal()
+      toast.success("Maxsulot turi muvaffaqiyatli qo'shildi", {
+        autoClose: 1000,
+        theme: 'light'
+      })
+      for (let i in productInfo) productInfo[i] = ''
+    })
+    .catch((err) => {
+      console.log(err)
+      toast.error(err?.response?.data?.msg, {
+        autoClose: 1000,
+        theme: 'light'
+      })
+    })
 }
+
+onMounted(() => {
+  listUpdate()
+})
 </script>
 
 <template>
@@ -100,7 +136,7 @@ const addProduct = () => {
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Mahsulot nomini kiriting..."
                   required=""
-                  v-model="productInfo.proname"
+                  v-model="productInfo.name"
                 />
               </div>
               <div>
@@ -112,8 +148,11 @@ const addProduct = () => {
                 <input
                   class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                   aria-describedby="file_input_help"
-                  id="file_input"
+                  id="fileupload"
                   type="file"
+                  multiple
+                  @change="onFileSelected"
+                  ref="fileInput"
                 />
               </div>
               <div>
@@ -127,9 +166,9 @@ const addProduct = () => {
                   name="price"
                   id="price"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Mahsulot raqam kiriting..."
+                  placeholder="Mahsulot narxi kiriting..."
                   required=""
-                  v-model="productInfo.pronarxi"
+                  v-model="productInfo.price"
                 />
               </div>
               <div>
@@ -139,13 +178,29 @@ const addProduct = () => {
                   >Mahsulot turi</label
                 >
                 <select
-                  v-model="productInfo.proturi"
                   id="category"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  v-model="productInfo.category_id"
                 >
                   <option selected disabled>Maxsulot turini tanlang</option>
-                  <option v-for="el in state.LIST" :key="el.id" selected="">{{ el.title }}</option>
+                  <option v-for="el in state.LIST" :key="el._id" :value="el._id">
+                    {{ el.name }}
+                  </option>
                 </select>
+              </div>
+              <div class="col-span-2">
+                <label
+                  for="message"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >Mahsulot haqida</label
+                >
+                <textarea
+                  id="message"
+                  rows="2"
+                  class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Mahsulot haqida qisqacha yozing..."
+                  @input="updateTheVariable($event.target.value)"
+                ></textarea>
               </div>
             </div>
             <button
@@ -196,7 +251,6 @@ const addProduct = () => {
                     placeholder="Qidiruv"
                     required=""
                     v-model="search"
-                    @input="searching"
                   />
                 </div>
               </form>
@@ -307,15 +361,15 @@ const addProduct = () => {
                     scope="row"
                     class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
-                    {{ el.proname }}
+                    {{ el.name }}
                   </th>
-                  <td class="px-4 py-3">{{ el.pronarxi }}</td>
-                  <td class="px-4 py-3">{{ el.proturi }}</td>
-                  <td class="px-4 py-3">{{ el.prosana }}</td>
+                  <td class="px-4 py-3">{{ el.price }}</td>
+                  <td class="px-4 py-3">{{ el.category_id[0].name }}</td>
+                  <td class="px-4 py-3">{{ el.createdAt.slice(0, 10) }}</td>
                   <td class="px-4 py-3">
                     <img
-                      src="https://cdn.apartmenttherapy.info/image/upload/v1620142498/gen-workflow/product-database/holden-grey-tufted-sofa-cb2.jpg"
-                      class="rounded-xl h-[50px] w-[50px] border border-dashed"
+                      :src="el.img"
+                      class="rounded-xl h-[60px] w-[100px] border border-dashed"
                       alt=""
                     />
                   </td>
@@ -412,56 +466,6 @@ const addProduct = () => {
                   class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                   >1</a
                 >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >2</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  aria-current="page"
-                  class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-blue-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                  >3</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >...</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                  >100</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  <span class="sr-only">Next</span>
-                  <svg
-                    class="w-5 h-5"
-                    aria-hidden="true"
-                    fill="currentColor"
-                    viewbox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </a>
               </li>
             </ul>
           </nav>

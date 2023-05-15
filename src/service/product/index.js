@@ -1,6 +1,8 @@
 import axios from '../axios'
 
 export const useProduct = {
-  CREATE: (data) => axios.post('/product', data),
-  GET: (num = 1) => axios.get(`/product?page=${num}`)
+  CREATE: async (data) => {
+    await axios.post('/products', data)
+  },
+  GET: async (num = 1) => await axios.get(`/products?page=${num}`)
 }

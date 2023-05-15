@@ -1,5 +1,7 @@
 import { computed, reactive } from 'vue'
 import { defineStore } from 'pinia'
+import { useProductType } from '../../service/product/type.js'
+import { toast } from 'vue3-toastify'
 
 export const productTypeStore = defineStore('productType', () => {
   const state = reactive({
@@ -8,8 +10,15 @@ export const productTypeStore = defineStore('productType', () => {
     errorMessage: ''
   })
 
-  const GETLIST = async (list) => {
-    state.list = list
+  const GETLIST = async () => {
+    try {
+      state.list = (await useProductType.GET()).data
+    } catch (err) {
+      toast.error(`Error ${err}`, {
+        autoClose: 1000,
+        theme: 'light'
+      })
+    }
   }
   GETLIST()
 

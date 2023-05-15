@@ -1,6 +1,8 @@
 import { reactive, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useUser } from '../../service/user'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 export const userStore = defineStore('user', () => {
   const state = reactive({
@@ -8,7 +10,12 @@ export const userStore = defineStore('user', () => {
   })
 
   const SET_USER = async () => {
-    state.user = (await useUser.GET()).data
+    try {
+      state.user = (await useUser.GET()).data
+    } catch (error) {
+      localStorage.clear()
+      router.push('/login')
+    }
   }
 
   const USER = computed(() => state.user)
