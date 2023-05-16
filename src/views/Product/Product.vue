@@ -4,18 +4,20 @@ import { ref, reactive, onMounted } from 'vue'
 import { productStore } from '../../stores/product/productStore.js'
 import { productTypeStore } from '../../stores/product/producType.js'
 import { useProduct } from '../../service/product'
+import { userStore } from '../../stores/user/userStore'
 import { Upload } from 'upload-js'
 
 const modal = ref(false)
 const search = ref('')
 const toggleModal = () => (modal.value = !modal.value)
 const fileLink = ref('')
+const userStore2 = userStore()
 
 const upload = Upload({ apiKey: 'public_12a1yEX912uU1bYwPjWP6JGFm3QZ' })
 
 const onFileSelected = async (event) => {
+  console.log(event.target.files)
   const [file] = event.target.files
-  console.log(file)
   const { fileUrl } = await upload.uploadFile(file, { onProgress })
   fileLink.value = fileUrl
 }
@@ -23,13 +25,11 @@ const onFileSelected = async (event) => {
 const onProgress = ({ progress }) => {
   console.log(`File uploading: ${progress}% complete.`)
 }
-
 const productInfo = reactive({
   name: '',
   price: '',
   category_id: '',
-  description: '',
-  staff_id: ''
+  description: ''
 })
 const store = productStore()
 const state = productTypeStore()
@@ -48,9 +48,9 @@ const addProduct = async () => {
     price: productInfo.price,
     category_id: productInfo.category_id,
     img: fileLink.value,
-    description: productInfo.description
+    description: productInfo.description,
+    staff_id: userStore2.USER._id
   }
-  console.log(product)
   useProduct
     .CREATE(product)
     .then(() => {
@@ -72,6 +72,7 @@ const addProduct = async () => {
 }
 
 onMounted(() => {
+  userStore2.SET_USER()
   listUpdate()
 })
 </script>
@@ -152,7 +153,6 @@ onMounted(() => {
                   type="file"
                   multiple
                   @change="onFileSelected"
-                  ref="fileInput"
                 />
               </div>
               <div>
@@ -350,9 +350,6 @@ onMounted(() => {
                   <th scope="col" class="px-4 py-3">Mahsulot turi</th>
                   <th scope="col" class="px-4 py-3">Qo'shilgan sanasi</th>
                   <th scope="col" class="px-4 py-3">Rasmi</th>
-                  <th scope="col" class="px-4 py-3">
-                    <span class="sr-only">Actions</span>
-                  </th>
                 </tr>
               </thead>
               <tbody>

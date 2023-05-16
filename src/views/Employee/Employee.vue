@@ -387,9 +387,6 @@ onMounted(() => {
                   <th scope="col" class="px-4 py-3">Lavozim</th>
                   <th scope="col" class="px-4 py-3">Karta raqami</th>
                   <th scope="col" class="px-4 py-3">Holati</th>
-                  <th scope="col" class="px-4 py-3">
-                    <span class="sr-only">Actions</span>
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -403,7 +400,6 @@ onMounted(() => {
                   <td class="px-4 py-3">{{ el.phone_number }}</td>
                   <td class="px-4 py-3">{{ el.card }}</td>
                   <td class="px-4 py-3">{{ el.role }}</td>
-                  <td class="px-4 py-3"></td>
                   <td class="px-4 py-3">
                     <label class="relative inline-flex items-center mr-5 cursor-pointer">
                       <input
